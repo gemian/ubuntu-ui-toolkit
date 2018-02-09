@@ -132,9 +132,9 @@ QSGNode *UCListItemDivider::updatePaintNode(QSGNode *node, UpdatePaintNodeData *
 {
     Q_UNUSED(data);
     Q_D(UCListItemDivider);
-    QSGInternalRectangleNode *dividerNode = static_cast<QSGInternalRectangleNode*>(node);
+    QSGRectangleNode *dividerNode = static_cast<QSGRectangleNode*>(node);
     if (!dividerNode) {
-        dividerNode = d->sceneGraphContext()->createInternalRectangleNode();
+        dividerNode = d->sceneGraphContext()->createRectangleNode();
     }
 
     UCListItemPrivate *pListItem = UCListItemPrivate::get(d->listItem);
@@ -1145,10 +1145,10 @@ QSGNode *UCListItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data
         return 0;
     }
 
-    QSGInternalRectangleNode  *rectNode = 0;
-    rectNode = static_cast<QSGInternalRectangleNode*>(oldNode);
+    QSGRectangleNode  *rectNode = 0;
+    rectNode = static_cast<QSGRectangleNode*>(oldNode);
     if (!rectNode) {
-        rectNode = QQuickItemPrivate::get(this)->sceneGraphContext()->createInternalRectangleNode();
+        rectNode = QQuickItemPrivate::get(this)->sceneGraphContext()->createRectangleNode();
     }
     bool updateNode = false;
 

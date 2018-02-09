@@ -1,0 +1,14 @@
+.idea/
+Makefile
+*.mo
+.qmake*
+build_paths.inc
+include/
+lib/
+mkspecs/
+.moc/
+.obj/
+.pch/
+*.version
+*.version.in
+ubuntu-sdk.pro.user
