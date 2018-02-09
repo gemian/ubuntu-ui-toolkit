@@ -1,7 +1,7 @@
 Source: ubuntu-ui-toolkit-gles
 Priority: optional
 Section: libs
-Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
+Maintainer: Adam Boardman <adamboardman@gmail.com>
 Build-Depends: accountsservice,
                dbus,
                dbus-test-runner,
@@ -56,7 +56,6 @@ Build-Depends: accountsservice,
                qtdeclarative5-doc-html,
                qtdeclarative5-private-dev,
                qtdeclarative5-qtfeedback-plugin,
-               qtdeclarative5-unity-action-plugin (>= 1.1.0),
                qtmultimedia5-doc-html,
                qtpim5-dev,
                qtscript5-doc-html,
@@ -68,7 +67,7 @@ Build-Depends: accountsservice,
                uuid-runtime,
                xvfb,
 Standards-Version: 3.9.7
-Homepage: https://launchpad.net/ubuntu-ui-toolkit
+Homepage: https://github.com/gemian/ubuntu-ui-toolkit/
 
 Package: qtdeclarative5-ubuntu-ui-toolkit-plugin-gles
 Section: oldlibs
