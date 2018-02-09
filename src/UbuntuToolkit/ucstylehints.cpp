@@ -261,11 +261,11 @@ void UCStyleHints::_q_applyStyleHints()
         QQmlBinding *newBinding = 0;
         if (e.id != QQmlBinding::Invalid) {
             QV4::Scope scope(QQmlEnginePrivate::getV4Engine(qmlEngine(this)));
-            QV4::ScopedValue function(scope, QV4::FunctionObject::createQmlFunction(cdata, new QObject(), m_cdata->runtimeFunctions[e.id]));
-            newBinding = new QQmlBinding(function, new QObject(), cdata);
+            QV4::ScopedValue function(scope, QV4::FunctionObject::createQmlFunction(cdata, item, m_cdata->runtimeFunctions[e.id]));
+            newBinding = new QQmlBinding(function, item, cdata);
         }
         if (!newBinding) {
-            newBinding = new QQmlBinding(e.expression, new QObject(), cdata, e.url.toString(), e.line, e.column);
+            newBinding = new QQmlBinding(e.expression, item, cdata, e.url.toString(), e.line, e.column);
         }
 
         newBinding->setTarget(change->property());
