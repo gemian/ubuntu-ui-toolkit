@@ -58,6 +58,7 @@ Build-Depends: accountsservice,
                qtwebkit5-doc-html,
                uuid-runtime,
                xvfb,
+               xauth,
 Standards-Version: 3.9.8
 Homepage: https://github.com/gemian/ubuntu-ui-toolkit
 Vcs-Git: https://github.com/gemian/ubuntu-ui-toolkit.git
