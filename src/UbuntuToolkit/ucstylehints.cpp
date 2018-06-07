@@ -19,7 +19,6 @@
 #include "ucstylehints_p.h"
 
 #include <QtQml/QQmlInfo>
-#include <QtQml/private/qqmlcompiler_p.h>
 
 #include "propertychange_p.h"
 #include "ucstyleditembase_p_p.h"
@@ -62,10 +61,10 @@ void UCStyleHintsParser::verifyProperty(const QV4::CompiledData::Unit *qmlUnit, 
 }
 
 // decodes property declarations, stores the bindings and values
-void UCStyleHintsParser::applyBindings(QObject *obj, QQmlCompiledData *cdata, const QList<const QV4::CompiledData::Binding *> &bindings)
+void UCStyleHintsParser::applyBindings(QObject *obj, QV4::CompiledData::CompilationUnit *cdata, const QList<const QV4::CompiledData::Binding *> &bindings)
 {
     UCStyleHints *hints = static_cast<UCStyleHints*>(obj);
-    const QV4::CompiledData::Unit *qmlUnit = cdata->compilationUnit->data;
+    const QV4::CompiledData::Unit *qmlUnit = cdata->data;
 
     UCStyledItemBase *styledItem = qobject_cast<UCStyledItemBase*>(hints->parent());
     if (!styledItem) {
@@ -77,7 +76,7 @@ void UCStyleHintsParser::applyBindings(QObject *obj, QQmlCompiledData *cdata, co
         hints->decodeBinding(QString(), qmlUnit, binding);
     }
 
-    hints->m_cdata = cdata->compilationUnit;
+    hints->m_cdata = cdata;
     hints->m_decoded = true;
 }
 
@@ -261,11 +260,20 @@ void UCStyleHints::_q_applyStyleHints()
         QQmlBinding *newBinding = 0;
         if (e.id != QQmlBinding::Invalid) {
             QV4::Scope scope(QQmlEnginePrivate::getV4Engine(qmlEngine(this)));
-            QV4::ScopedValue function(scope, QV4::FunctionObject::createQmlFunction(cdata, item, m_cdata->runtimeFunctions[e.id]));
-            newBinding = new QQmlBinding(function, item, cdata);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+            QV4::Scoped<QV4::QmlContext> qmlContext(scope, QV4::QmlContext::create(scope.engine->rootContext(), cdata, new QObject()));
+#else
+            QV4::ScopedValue function(scope, QV4::QmlBindingWrapper::createQmlCallableForFunction(cdata, item, m_cdata->compilationUnit->runtimeFunctions[e.id]));
+#endif
+            QQmlPropertyData const *prop = new QQmlPropertyData();
+            newBinding = QQmlBinding::create(prop, m_cdata->runtimeFunctions[e.id], new QObject(), cdata, qmlContext);
+
+
         }
         if (!newBinding) {
-            newBinding = new QQmlBinding(e.expression, item, cdata, e.url.toString(), e.line, e.column);
+            QQmlPropertyData const *prop = new QQmlPropertyData();
+            newBinding = QQmlBinding::create(prop, e.expression, new QObject(), cdata, e.url.toString(), e.line);
         }
 
         newBinding->setTarget(change->property());
