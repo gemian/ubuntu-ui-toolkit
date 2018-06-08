@@ -11,6 +11,8 @@ DEB_HOST_MULTI_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_MULTIARCH)
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_SERIES ?= $(shell lsb_release -c -s)
 
+docskip_architectures := arm64 powerpc ppc64el s390x
+
 # Skip tests on the archs they are known to be flaky  with current configuration
 testskip_architectures := amd64 arm64 powerpc ppc64el s390x
 testskip_series := 
@@ -40,12 +42,16 @@ endif
 
 override_dh_build:
 	dh_auto_build --parallel
+ifneq ($(DEB_HOST_ARCH),$(findstring $(DEB_HOST_ARCH), $(docskip_architectures)))
 	dh_auto_build --parallel -- docs
+endif
 
 override_dh_install:
+ifneq ($(DEB_HOST_ARCH),$(findstring $(DEB_HOST_ARCH), $(docskip_architectures)))
 	mkdir -p debian/tmp/`qmake -query QT_INSTALL_DOCS`/qch
 	mkdir -p debian/tmp/usr/share/ubuntu-ui-toolkit/doc
 	cp -r $(CURDIR)/documentation/*qch debian/tmp/`qmake -query QT_INSTALL_DOCS`/qch
+endif
 	rm -f debian/tmp/usr/lib/$(DEB_HOST_MULTIARCH)/*.la
 	# FIXME: Due to autopilot not being in the archive we ship docs for now
 	# sphinx-build -b singlehtml documentation/autopilot-helpers documentation/autopilot-helpers/_build/html
