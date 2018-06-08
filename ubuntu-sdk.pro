@@ -1,4 +1,6 @@
-#include( documentation/documentation.pri )
+contains(QMAKE_HOST.arch, x86_64): {
+	#include( documentation/documentation.pri )
+}
 
 BUILD_PATH_CONTENTS="SRC_DIR=\"$$PWD\"" \
                     "BUILD_DIR=\"$$OUT_PWD\""
@@ -11,7 +13,10 @@ load(qt_parts)
 src_uitk_launcher.subdir = ubuntu-ui-toolkit-launcher
 src_uitk_launcher.depends = sub-src
 
-SUBDIRS += po documentation app-launch-profiler src_uitk_launcher apicheck
+SUBDIRS += po app-launch-profiler src_uitk_launcher apicheck
+contains(QMAKE_HOST.arch, x86_64): {
+	SUBDIRS += documentation
+}
 
 sub_tests.CONFIG -= no_default_target
 sub_tests.CONFIG -= no_default_install
