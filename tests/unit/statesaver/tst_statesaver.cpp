@@ -458,7 +458,6 @@ private Q_SLOTS:
         QVERIFY(topLoader);
 
         topLoader->setProperty("source", "Dynamic.qml");
-        QTest::waitForEvents();
 
         QObject *testItem = view->rootObject()->findChild<QObject*>("testItem");
         QVERIFY(testItem);
