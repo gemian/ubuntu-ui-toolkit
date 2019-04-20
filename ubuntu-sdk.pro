@@ -1,4 +1,4 @@
-contains(QMAKE_HOST.arch, x86_64): {
+!CONFIG(no_docs) {
 	#include( documentation/documentation.pri )
 }
 
@@ -14,8 +14,8 @@ src_uitk_launcher.subdir = ubuntu-ui-toolkit-launcher
 src_uitk_launcher.depends = sub-src
 
 SUBDIRS += po app-launch-profiler src_uitk_launcher apicheck
-contains(QMAKE_HOST.arch, x86_64): {
-	SUBDIRS += documentation
+!CONFIG(no_docs) {
+    SUBDIRS += documentation
 }
 
 sub_tests.CONFIG -= no_default_target

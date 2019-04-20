@@ -11,15 +11,16 @@ DEB_HOST_MULTI_ARCH ?= $(shell dpkg-architecture -qDEB_BUILD_MULTIARCH)
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 DEB_HOST_SERIES ?= $(shell lsb_release -c -s)
 
-docskip_architectures := arm64 powerpc ppc64el s390x
+docskip_architectures := arm64 amd64 powerpc ppc64el s390x
+CONFIGURE_OPTS += "CONFIG+=no_docs"
 
 # Skip tests on the archs they are known to be flaky  with current configuration
 testskip_architectures := amd64 arm64 powerpc ppc64el s390x
 testskip_series := 
 
 override_dh_auto_configure:
-	qmake
-	qmake -r CONFIG+=debian_build
+	qmake $(CONFIGURE_OPTS)
+	qmake -r CONFIG+=debian_build $(CONFIGURE_OPTS)
 
 %:
 	dh $@ --parallel

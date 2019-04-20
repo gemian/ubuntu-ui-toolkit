@@ -29,6 +29,7 @@
 #include <QtGui/qpa/qplatformscreen.h>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlFile>
+#include <QtGui/private/qhighdpiscaling_p.h>
 
 #define ENV_GRID_UNIT_PX "GRID_UNIT_PX"
 #define DEFAULT_GRID_UNIT_PX 8
@@ -102,15 +103,12 @@ UCUnits::UCUnits(QWindow *parent) :
     m_devicePixelRatio(parent->devicePixelRatio())
 {
     m_gridUnit = getenvFloat(ENV_GRID_UNIT_PX, DEFAULT_GRID_UNIT_PX * m_devicePixelRatio);
-
-    if (!qEnvironmentVariableIsSet(ENV_GRID_UNIT_PX)) {
-        QObject::connect(parent, &QWindow::screenChanged,
-                         this, &UCUnits::screenChanged);
-        m_screen = parent->screen();
-        if (m_screen)
-            QObject::connect(m_screen, &QScreen::physicalDotsPerInchChanged,
-                             this, &UCUnits::devicePixelRatioChanged);
-    }
+    QObject::connect(parent, &QWindow::screenChanged,
+                     this, &UCUnits::screenChanged);
+    m_screen = parent->screen();
+    if (m_screen)
+        QObject::connect(m_screen, &QScreen::physicalDotsPerInchChanged,
+                         this, &UCUnits::devicePixelRatioChanged);
 }
 
 void UCUnits::screenChanged(QScreen *screen)
@@ -137,14 +135,15 @@ UCUnits::UCUnits(QObject *parent) :
     QObject(parent),
     m_devicePixelRatio(qGuiApp->devicePixelRatio())
 {
-    m_gridUnit = getenvFloat(ENV_GRID_UNIT_PX, DEFAULT_GRID_UNIT_PX * m_devicePixelRatio);
+    if (QHighDpiScaling::isActive())
+      m_gridUnit = qCeil(DEFAULT_GRID_UNIT_PX * m_devicePixelRatio);
+    else
+      m_gridUnit = getenvFloat(ENV_GRID_UNIT_PX, DEFAULT_GRID_UNIT_PX * m_devicePixelRatio);
 
-    if (!qEnvironmentVariableIsSet(ENV_GRID_UNIT_PX)) {
-        auto nativeInterface = qGuiApp->platformNativeInterface();
-        if (nativeInterface) {
-            QObject::connect(nativeInterface, &QPlatformNativeInterface::windowPropertyChanged,
-                             this, &UCUnits::windowPropertyChanged);
-        }
+    auto nativeInterface = qGuiApp->platformNativeInterface();
+    if (nativeInterface) {
+        QObject::connect(nativeInterface, &QPlatformNativeInterface::windowPropertyChanged,
+                         this, &UCUnits::windowPropertyChanged);
     }
 }
 
@@ -327,8 +326,16 @@ void UCUnits::windowPropertyChanged(QPlatformWindow *window, const QString &prop
     if (!ok || scale <= 0) {
         return;
     }
+
+    // Update our pixel ratio to make sure it has not changed
+    m_devicePixelRatio = qGuiApp->devicePixelRatio();
+
     // choose integral grid unit value closest to requested scale
-    setGridUnit(qCeil(scale * DEFAULT_GRID_UNIT_PX) * m_devicePixelRatio);
+    // If qt hidpi scaling is enabled, use that as scaling
+    if (QHighDpiScaling::isActive())
+      setGridUnit(qCeil(m_devicePixelRatio * DEFAULT_GRID_UNIT_PX));
+    else
+      setGridUnit(qCeil(scale * DEFAULT_GRID_UNIT_PX) * m_devicePixelRatio);
 }
 
 UT_NAMESPACE_END
